@@ -1,11 +1,13 @@
 package example;
 
 import io.micronaut.context.annotation.Replaces;
-import io.micronaut.core.annotation.Internal;
-import io.micronaut.http.server.netty.NettyEmbeddedServices;
+import io.micronaut.http.server.netty.DefaultNettyEmbeddedServerFactory;
 import io.micronaut.http.server.netty.NettyHttpServer;
 import io.micronaut.http.server.netty.configuration.NettyHttpServerConfiguration;
-import io.micronaut.http.server.netty.types.NettyCustomizableResponseTypeHandlerRegistry;
+import io.micronaut.http.server.netty.types.DefaultCustomizableResponseTypeHandlerRegistry;
+import io.micronaut.http.server.netty.types.NettyCustomizableResponseTypeHandler;
+import io.micronaut.http.server.netty.types.files.FileTypeHandler;
+import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Singleton;
 import org.crac.Context;
 import org.crac.Core;
@@ -13,29 +15,24 @@ import org.crac.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 @Singleton
-@Internal
-@Replaces(NettyHttpServer.class)
+@Replaces(EmbeddedServer.class)
 public class CracEnhancedNettyHttpServer extends NettyHttpServer implements Resource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CracEnhancedNettyHttpServer.class);
 
     /**
      * @param serverConfiguration   The Netty HTTP server configuration
-     * @param nettyEmbeddedServices The embedded server context
-     * @param handlerRegistry       The handler registry
-     * @param isDefault             Is this the default server
      */
     public CracEnhancedNettyHttpServer(
-            NettyHttpServerConfiguration serverConfiguration,
-            NettyEmbeddedServices nettyEmbeddedServices,
-            NettyCustomizableResponseTypeHandlerRegistry handlerRegistry,
-            boolean isDefault
+            DefaultNettyEmbeddedServerFactory serverFactory,
+            NettyHttpServerConfiguration serverConfiguration
     ) {
-        super(serverConfiguration, nettyEmbeddedServices, handlerRegistry, isDefault);
+        super(serverConfiguration, serverFactory, new DefaultCustomizableResponseTypeHandlerRegistry(Arrays.asList(new FileTypeHandler(serverConfiguration.getFileTypeHandlerConfiguration())).toArray(new NettyCustomizableResponseTypeHandler[0])), true);
         Core.getGlobalContext().register(this);
     }
-
 
     @Override
     @SuppressWarnings("resource")

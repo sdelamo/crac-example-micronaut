@@ -1,11 +1,8 @@
-package example;
+package io.micronaut.http.server.netty;
 
 import io.micronaut.context.annotation.Replaces;
-import io.micronaut.http.server.netty.DefaultNettyEmbeddedServerFactory;
-import io.micronaut.http.server.netty.NettyHttpServer;
 import io.micronaut.http.server.netty.configuration.NettyHttpServerConfiguration;
 import io.micronaut.http.server.netty.types.DefaultCustomizableResponseTypeHandlerRegistry;
-import io.micronaut.http.server.netty.types.NettyCustomizableResponseTypeHandler;
 import io.micronaut.http.server.netty.types.files.FileTypeHandler;
 import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Singleton;
@@ -14,8 +11,6 @@ import org.crac.Core;
 import org.crac.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 @Singleton
 @Replaces(EmbeddedServer.class)
@@ -33,7 +28,10 @@ public class CracEnhancedNettyHttpServer extends NettyHttpServer implements Reso
         super(
                 serverConfiguration,
                 serverFactory,
-                new DefaultCustomizableResponseTypeHandlerRegistry(new FileTypeHandler(serverConfiguration.getFileTypeHandlerConfiguration())),
+                new DefaultCustomizableResponseTypeHandlerRegistry(
+                        new FileTypeHandler(serverConfiguration.getFileTypeHandlerConfiguration()),
+                        new StreamTypeHandler()
+                ),
                 true
         );
         Core.getGlobalContext().register(this);

@@ -30,14 +30,19 @@ public class CracEnhancedNettyHttpServer extends NettyHttpServer implements Reso
             DefaultNettyEmbeddedServerFactory serverFactory,
             NettyHttpServerConfiguration serverConfiguration
     ) {
-        super(serverConfiguration, serverFactory, new DefaultCustomizableResponseTypeHandlerRegistry(Arrays.asList(new FileTypeHandler(serverConfiguration.getFileTypeHandlerConfiguration())).toArray(new NettyCustomizableResponseTypeHandler[0])), true);
+        super(
+                serverConfiguration,
+                serverFactory,
+                new DefaultCustomizableResponseTypeHandlerRegistry(new FileTypeHandler(serverConfiguration.getFileTypeHandlerConfiguration())),
+                true
+        );
         Core.getGlobalContext().register(this);
     }
 
     @Override
     @SuppressWarnings("resource")
     public void beforeCheckpoint(Context<? extends Resource> context) throws Exception {
-        LOG.info("CracEnhancedNettyHttpServer.beforeCheckpoint()");
+        LOG.info("CracEnhancedNettyHttpServer.beforeCheckpoint() {}", context);
         if (isRunning()) {
             stop();
         }
@@ -46,7 +51,7 @@ public class CracEnhancedNettyHttpServer extends NettyHttpServer implements Reso
     @Override
     @SuppressWarnings("resource")
     public void afterRestore(Context<? extends Resource> context) throws Exception {
-        LOG.info("CracEnhancedNettyHttpServer.afterRestore()");
+        LOG.info("CracEnhancedNettyHttpServer.afterRestore() {}", context);
         start();
     }
 }
